@@ -14,11 +14,11 @@ import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { Authentication } from '../../App'
 import { useHistory } from 'react-router-dom'
 import {
-    getAuth,
     createUserWithEmailAndPassword,
+    getAuth,
     signInWithEmailAndPassword,
 } from 'firebase/auth'
-import { getDatabase, ref, set, child, get } from 'firebase/database'
+import { child, get, getDatabase, ref, set } from 'firebase/database'
 
 const SingInUp = () => {
     const db = getDatabase()
@@ -122,6 +122,8 @@ const SingInUp = () => {
                                         history.push('/')
                                     })
                                     .catch(error => console.log(error))
+                            } else {
+                                setErrorText('Этот email уже используется!!!')
                             }
                         })
                     })
@@ -157,6 +159,17 @@ const SingInUp = () => {
                             token: user.accessToken,
                         })
                         history.push('/')
+                    } else if (
+                        newUserList.find(elem => elem.id === user.uid)
+                            .status === 'blocked'
+                    ) {
+                        setErrorText(
+                            'Пользователь с такой почтой заблокирован!!!'
+                        )
+                    } else {
+                        setErrorText(
+                            'Пользователя с такой почтой не найдено!!!'
+                        )
                     }
                 })
             })
