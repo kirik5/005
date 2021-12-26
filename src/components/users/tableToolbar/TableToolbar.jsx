@@ -1,14 +1,82 @@
-import Toolbar from "@mui/material/Toolbar";
-import {alpha} from "@mui/material/styles";
-import Typography from "@mui/material/Typography";
-import Tooltip from "@mui/material/Tooltip";
-import IconButton from "@mui/material/IconButton";
-import DeleteIcon from "@mui/icons-material/Delete";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import React from "react";
+import Toolbar from '@mui/material/Toolbar'
+import { alpha } from '@mui/material/styles'
+import Typography from '@mui/material/Typography'
+import Tooltip from '@mui/material/Tooltip'
+import IconButton from '@mui/material/IconButton'
+import DeleteIcon from '@mui/icons-material/Delete'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import React, { useContext } from 'react'
+import BlockIcon from '@mui/icons-material/Block'
+import DoDisturbAltIcon from '@mui/icons-material/DoDisturbAlt'
+import { getDatabase, ref, set } from 'firebase/database'
+import { Authentication } from '../../../App'
 
-const EnhancedTableToolbar = props => {
-    const { numSelected } = props;
+const EnhancedTableToolbar = ({
+    numSelected,
+    selected,
+    setSelected,
+    users,
+}) => {
+    const db = getDatabase()
+
+    const { firebaseUser, setFirebaseUser } = useContext(Authentication)
+
+    const handleBlockUsers = () => {
+        let saveSelected = [...selected]
+
+        const promises = selected.map(uid => {
+            const user = users.find(user => user.id === uid)
+            return set(ref(db, 'users/' + uid), {
+                ...user,
+                status: 'blocked',
+            })
+                .then(() => {})
+                .catch(error => console.log(error))
+        })
+
+        Promise.all(promises).then(() => {
+            setSelected([])
+            if (saveSelected.includes(firebaseUser.id)) {
+                setFirebaseUser({
+                    email: null,
+                    id: null,
+                    token: null,
+                })
+            }
+        })
+    }
+
+    const handleUnBlockUsers = () => {
+        const promises = selected.map(uid => {
+            const user = users.find(user => user.id === uid)
+            return set(ref(db, 'users/' + uid), {
+                ...user,
+                status: 'unblocked',
+            })
+                .then(() => {})
+                .catch(error => console.log(error))
+        })
+
+        Promise.all(promises).then(() => {
+            setSelected([])
+        })
+    }
+
+    const handleDeleteUsers = () => {
+        const promises = selected.map(uid => {
+            const user = users.find(user => user.id === uid)
+            return set(ref(db, 'users/' + uid), {
+                ...user,
+                status: 'deleted',
+            })
+                .then(() => {})
+                .catch(error => console.log(error))
+        })
+
+        Promise.all(promises).then(() => {
+            setSelected([])
+        })
+    }
 
     return (
         <Toolbar
@@ -16,8 +84,11 @@ const EnhancedTableToolbar = props => {
                 pl: { sm: 2 },
                 pr: { xs: 1, sm: 1 },
                 ...(numSelected > 0 && {
-                    bgcolor: (theme) =>
-                        alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
+                    bgcolor: theme =>
+                        alpha(
+                            theme.palette.primary.main,
+                            theme.palette.action.activatedOpacity
+                        ),
                 }),
             }}
         >
@@ -42,11 +113,23 @@ const EnhancedTableToolbar = props => {
             )}
 
             {numSelected > 0 ? (
-                <Tooltip title="Delete">
-                    <IconButton>
-                        <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
+                <>
+                    <Tooltip title="Block">
+                        <IconButton onClick={handleBlockUsers}>
+                            <BlockIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="UnBlock">
+                        <IconButton onClick={handleUnBlockUsers}>
+                            <DoDisturbAltIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                        <IconButton onClick={handleDeleteUsers}>
+                            <DeleteIcon />
+                        </IconButton>
+                    </Tooltip>
+                </>
             ) : (
                 <Tooltip title="Filter list">
                     <IconButton>
@@ -55,7 +138,7 @@ const EnhancedTableToolbar = props => {
                 </Tooltip>
             )}
         </Toolbar>
-    );
-};
+    )
+}
 
 export default EnhancedTableToolbar
