@@ -63,6 +63,7 @@ const EnhancedTableToolbar = ({
     }
 
     const handleDeleteUsers = () => {
+        let saveSelected = [...selected]
         const promises = selected.map(uid => {
             const user = users.find(user => user.id === uid)
             return set(ref(db, 'users/' + uid), {
@@ -75,6 +76,13 @@ const EnhancedTableToolbar = ({
 
         Promise.all(promises).then(() => {
             setSelected([])
+            if (saveSelected.includes(firebaseUser.id)) {
+                setFirebaseUser({
+                    email: null,
+                    id: null,
+                    token: null,
+                })
+            }
         })
     }
 

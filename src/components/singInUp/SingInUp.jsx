@@ -78,6 +78,39 @@ const SingInUp = () => {
             .catch(error => {
                 const errorMessage = error.message
                 console.log(errorMessage)
+
+                signInWithEmailAndPassword(
+                    auth,
+                    userInfo.email,
+                    userInfo.password
+                )
+                    .then(userCredential => {
+                        const user = userCredential.user
+
+                        set(ref(db, 'users/' + user.uid), {
+                            id: user.uid,
+                            name: user.email,
+                            email: user.email,
+                            registrationDate: user.metadata.creationTime,
+                            lastLoginDate: user.metadata.lastSignInTime,
+                            status: 'unblocked',
+                            token: user.accessToken,
+                        })
+                            .then(() => {
+                                console.log('added')
+                                setFirebaseUser({
+                                    email: user.email,
+                                    id: user.uid,
+                                    token: user.accessToken,
+                                })
+                                history.push('/')
+                            })
+                            .catch(error => console.log(error))
+                    })
+                    .catch(error => {
+                        const errorMessage = error.message
+                        console.log(errorMessage)
+                    })
             })
     }
 
@@ -86,7 +119,6 @@ const SingInUp = () => {
         signInWithEmailAndPassword(auth, userInfo.email, userInfo.password)
             .then(userCredential => {
                 const user = userCredential.user
-
                 const dbRef = ref(db)
                 get(child(dbRef, `users/`)).then(snapshot => {
                     const data = snapshot.val()
@@ -109,22 +141,6 @@ const SingInUp = () => {
                         history.push('/')
                     }
                 })
-
-                // const db = getDatabase()
-                // set(ref(db, 'users/' + user.uid), {
-                //     id: user.uid,
-                //     name: user.email,
-                //     email: user.email,
-                //     registrationDate: user.metadata.creationTime,
-                //     lastLoginDate: user.metadata.lastSignInTime,
-                //     status: 'unblocked',
-                //     token: user.accessToken,
-                // })
-                //     .then(() => {
-                //         console.log('added')
-                //         history.push('/')
-                //     })
-                //     .catch(error => console.log(error))
             })
             .catch(error => {
                 const errorMessage = error.message
