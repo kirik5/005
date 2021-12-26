@@ -29,6 +29,8 @@ const SingInUp = () => {
         showPassword: false,
     })
 
+    const [errorText, setErrorText] = useState('')
+
     const disabledSingUp = !userInfo.email || !userInfo.password
 
     const { setFirebaseUser } = useContext(Authentication)
@@ -86,26 +88,42 @@ const SingInUp = () => {
                 )
                     .then(userCredential => {
                         const user = userCredential.user
-
-                        set(ref(db, 'users/' + user.uid), {
-                            id: user.uid,
-                            name: user.email,
-                            email: user.email,
-                            registrationDate: user.metadata.creationTime,
-                            lastLoginDate: user.metadata.lastSignInTime,
-                            status: 'unblocked',
-                            token: user.accessToken,
-                        })
-                            .then(() => {
-                                console.log('added')
-                                setFirebaseUser({
-                                    email: user.email,
+                        const dbRef = ref(db)
+                        get(child(dbRef, `users/`)).then(snapshot => {
+                            const data = snapshot.val()
+                            const keys = Object.keys(data)
+                            const newUserList = []
+                            for (let key of keys) {
+                                newUserList.push(data[key])
+                            }
+                            console.log(newUserList)
+                            console.log(user.uid)
+                            if (
+                                newUserList.find(elem => elem.id === user.uid)
+                                    .status === 'deleted'
+                            ) {
+                                set(ref(db, 'users/' + user.uid), {
                                     id: user.uid,
+                                    name: user.email,
+                                    email: user.email,
+                                    registrationDate:
+                                        user.metadata.creationTime,
+                                    lastLoginDate: user.metadata.lastSignInTime,
+                                    status: 'unblocked',
                                     token: user.accessToken,
                                 })
-                                history.push('/')
-                            })
-                            .catch(error => console.log(error))
+                                    .then(() => {
+                                        console.log('added')
+                                        setFirebaseUser({
+                                            email: user.email,
+                                            id: user.uid,
+                                            token: user.accessToken,
+                                        })
+                                        history.push('/')
+                                    })
+                                    .catch(error => console.log(error))
+                            }
+                        })
                     })
                     .catch(error => {
                         const errorMessage = error.message
@@ -145,6 +163,7 @@ const SingInUp = () => {
             .catch(error => {
                 const errorMessage = error.message
                 console.log(errorMessage)
+                setErrorText('Некорректный логин или пароль!!!')
             })
     }
 
@@ -163,6 +182,8 @@ const SingInUp = () => {
                     margin="dense"
                     value={userInfo.email}
                     onChange={handleChangeUserInfo('email')}
+                    error={!!errorText}
+                    helperText={errorText}
                 />
                 <FormControl fullWidth margin="dense" variant="outlined">
                     <InputLabel htmlFor="outlined-adornment-password">

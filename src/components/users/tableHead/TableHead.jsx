@@ -1,16 +1,16 @@
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import TableCell from "@mui/material/TableCell";
-import Checkbox from "@mui/material/Checkbox";
-import TableSortLabel from "@mui/material/TableSortLabel";
-import Box from "@mui/material/Box";
-import {visuallyHidden} from "@mui/utils";
-import React from "react";
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import Checkbox from '@mui/material/Checkbox'
+import TableSortLabel from '@mui/material/TableSortLabel'
+import Box from '@mui/material/Box'
+import { visuallyHidden } from '@mui/utils'
+import React from 'react'
 
 const headCells = [
     {
         id: 'id',
-        numeric: true,
+        numeric: false,
         disablePadding: true,
         label: 'Идентификатор',
     },
@@ -44,14 +44,20 @@ const headCells = [
         disablePadding: false,
         label: 'Статус',
     },
-];
+]
 
 const EnhancedTableHead = props => {
-    const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
-        props;
-    const createSortHandler = (property) => (event) => {
-        onRequestSort(event, property);
-    };
+    const {
+        onSelectAllClick,
+        order,
+        orderBy,
+        numSelected,
+        rowCount,
+        onRequestSort,
+    } = props
+    const createSortHandler = property => event => {
+        onRequestSort(event, property)
+    }
 
     return (
         <TableHead>
@@ -59,7 +65,9 @@ const EnhancedTableHead = props => {
                 <TableCell padding="checkbox">
                     <Checkbox
                         color="primary"
-                        indeterminate={numSelected > 0 && numSelected < rowCount}
+                        indeterminate={
+                            numSelected > 0 && numSelected < rowCount
+                        }
                         checked={rowCount > 0 && numSelected === rowCount}
                         onChange={onSelectAllClick}
                         inputProps={{
@@ -67,7 +75,7 @@ const EnhancedTableHead = props => {
                         }}
                     />
                 </TableCell>
-                {headCells.map((headCell) => (
+                {headCells.map(headCell => (
                     <TableCell
                         key={headCell.id}
                         align={headCell.numeric ? 'right' : 'left'}
@@ -82,7 +90,9 @@ const EnhancedTableHead = props => {
                             {headCell.label}
                             {orderBy === headCell.id ? (
                                 <Box component="span" sx={visuallyHidden}>
-                                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                                    {order === 'desc'
+                                        ? 'sorted descending'
+                                        : 'sorted ascending'}
                                 </Box>
                             ) : null}
                         </TableSortLabel>
@@ -90,7 +100,7 @@ const EnhancedTableHead = props => {
                 ))}
             </TableRow>
         </TableHead>
-    );
+    )
 }
 
 export default EnhancedTableHead

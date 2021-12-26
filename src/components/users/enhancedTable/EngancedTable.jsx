@@ -13,6 +13,7 @@ import TableCell from '@mui/material/TableCell'
 import Checkbox from '@mui/material/Checkbox'
 import TablePagination from '@mui/material/TablePagination'
 import { getDatabase, onValue, ref } from 'firebase/database'
+import ButtonAppBar from '../appBar/AppBar'
 
 const EnhancedTable = () => {
     const [users, setUsers] = React.useState(rows)
@@ -89,120 +90,128 @@ const EnhancedTable = () => {
         page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0
 
     return (
-        <Box sx={{ width: '100%' }}>
-            <Paper sx={{ maxWidth: 1200, mb: 2, margin: '0 auto' }}>
-                <EnhancedTableToolbar
-                    numSelected={selected.length}
-                    selected={selected}
-                    setSelected={setSelected}
-                    users={users}
-                />
-                <TableContainer>
-                    <Table
-                        sx={{ minWidth: 750 }}
-                        aria-labelledby="tableTitle"
-                        size={'medium'}
-                    >
-                        <EnhancedTableHead
-                            numSelected={selected.length}
-                            order={order}
-                            orderBy={orderBy}
-                            onSelectAllClick={handleSelectAllClick}
-                            onRequestSort={handleRequestSort}
-                            rowCount={users.length}
-                        />
-                        <TableBody>
-                            {stableSort(users, getComparator(order, orderBy))
-                                .slice(
-                                    page * rowsPerPage,
-                                    page * rowsPerPage + rowsPerPage
+        <>
+            <ButtonAppBar />
+            <Box sx={{ width: '100%' }}>
+                <Paper sx={{ maxWidth: 1200, mb: 2, margin: '0 auto' }}>
+                    <EnhancedTableToolbar
+                        numSelected={selected.length}
+                        selected={selected}
+                        setSelected={setSelected}
+                        users={users}
+                    />
+                    <TableContainer>
+                        <Table
+                            sx={{ minWidth: 750 }}
+                            aria-labelledby="tableTitle"
+                            size={'medium'}
+                        >
+                            <EnhancedTableHead
+                                numSelected={selected.length}
+                                order={order}
+                                orderBy={orderBy}
+                                onSelectAllClick={handleSelectAllClick}
+                                onRequestSort={handleRequestSort}
+                                rowCount={users.length}
+                            />
+                            <TableBody>
+                                {stableSort(
+                                    users,
+                                    getComparator(order, orderBy)
                                 )
-                                .map((user, index) => {
-                                    const isItemSelected = isSelected(user.id)
-                                    const labelId = `enhanced-table-checkbox-${index}`
-
-                                    return (
-                                        <TableRow
-                                            hover
-                                            onClick={event =>
-                                                handleClick(event, user.id)
-                                            }
-                                            role="checkbox"
-                                            aria-checked={isItemSelected}
-                                            tabIndex={-1}
-                                            key={user.id}
-                                            selected={isItemSelected}
-                                        >
-                                            <TableCell padding="checkbox">
-                                                <Checkbox
-                                                    color="primary"
-                                                    checked={isItemSelected}
-                                                    inputProps={{
-                                                        'aria-labelledby':
-                                                            labelId,
-                                                    }}
-                                                />
-                                            </TableCell>
-                                            <TableCell
-                                                component="th"
-                                                id={user.id}
-                                                scope="row"
-                                                padding="none"
-                                                align="right"
-                                            >
-                                                {user.id}
-                                            </TableCell>
-                                            <TableCell align="left">
-                                                {user.name}
-                                            </TableCell>
-                                            <TableCell align="left">
-                                                {user.email}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                {user.registrationDate}
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                {user.lastLoginDate}
-                                            </TableCell>
-                                            <TableCell align="left">
-                                                {user.status}
-                                            </TableCell>
-                                        </TableRow>
+                                    .slice(
+                                        page * rowsPerPage,
+                                        page * rowsPerPage + rowsPerPage
                                     )
-                                })}
-                            {emptyRows > 0 && (
-                                <TableRow
-                                    style={{
-                                        height: 53 * emptyRows,
-                                    }}
-                                >
-                                    <TableCell colSpan={6} />
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={users.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    labelRowsPerPage={'Пользователей на странице'}
-                    labelDisplayedRows={function defaultLabelDisplayedRows({
-                        from,
-                        to,
-                        count,
-                    }) {
-                        return `${from}–${to} из ${
-                            count !== -1 ? count : `more than ${to}`
-                        }`
-                    }}
-                />
-            </Paper>
-        </Box>
+                                    .map((user, index) => {
+                                        const isItemSelected = isSelected(
+                                            user.id
+                                        )
+                                        const labelId = `enhanced-table-checkbox-${index}`
+
+                                        return (
+                                            <TableRow
+                                                hover
+                                                onClick={event =>
+                                                    handleClick(event, user.id)
+                                                }
+                                                role="checkbox"
+                                                aria-checked={isItemSelected}
+                                                tabIndex={-1}
+                                                key={user.id}
+                                                selected={isItemSelected}
+                                            >
+                                                <TableCell padding="checkbox">
+                                                    <Checkbox
+                                                        color="primary"
+                                                        checked={isItemSelected}
+                                                        inputProps={{
+                                                            'aria-labelledby':
+                                                                labelId,
+                                                        }}
+                                                    />
+                                                </TableCell>
+                                                <TableCell
+                                                    component="th"
+                                                    id={user.id}
+                                                    scope="row"
+                                                    padding="none"
+                                                    align="left"
+                                                >
+                                                    {user.id}
+                                                </TableCell>
+                                                <TableCell align="left">
+                                                    {user.name}
+                                                </TableCell>
+                                                <TableCell align="left">
+                                                    {user.email}
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    {user.registrationDate}
+                                                </TableCell>
+                                                <TableCell align="right">
+                                                    {user.lastLoginDate}
+                                                </TableCell>
+                                                <TableCell align="left">
+                                                    {user.status}
+                                                </TableCell>
+                                            </TableRow>
+                                        )
+                                    })}
+                                {emptyRows > 0 && (
+                                    <TableRow
+                                        style={{
+                                            height: 53 * emptyRows,
+                                        }}
+                                    >
+                                        <TableCell colSpan={6} />
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 25]}
+                        component="div"
+                        count={users.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                        labelRowsPerPage={'Пользователей на странице'}
+                        labelDisplayedRows={function defaultLabelDisplayedRows({
+                            from,
+                            to,
+                            count,
+                        }) {
+                            return `${from}–${to} из ${
+                                count !== -1 ? count : `more than ${to}`
+                            }`
+                        }}
+                    />
+                </Paper>
+            </Box>
+        </>
     )
 }
 
